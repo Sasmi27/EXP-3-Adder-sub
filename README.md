@@ -18,12 +18,72 @@ half_add_sub.v	Arithmetic-circuit RTL
 half_add_sub_tb.v	Stimulus and VCD generation
 
 ### Verilog Program
+module half_adder (
+    input  wire A,
+    input  wire B,
+    output wire Sum,
+    output wire Carry
+);
+    assign Sum   = A ^ B;   // XOR
+    assign Carry = A & B;   // AND
+endmodule
+ 
+module half_subtractor (
+    input  wire A,
+    input  wire B,
+    output wire Diff,
+    output wire Borrow
+);
+    assign Diff   = A ^ B;      // XOR
+    assign Borrow = (~A) & B;  // A' . B
+endmodule
 ```
 ```
 ### Testbench Program
-
+module tb3;
+    reg A, B;
+    wire Sum, Carry;
+    wire Diff, Borrow;
+ 
+    // Instantiate the Half Adder
+    half_adder ha_uut (
+        .A(A),
+        .B(B),
+        .Sum(Sum),
+        .Carry(Carry)
+    );
+ 
+    // Instantiate the Half Subtractor
+    half_subtractor hs_uut (
+        .A(A),
+        .B(B),
+        .Diff(Diff),
+        .Borrow(Borrow)
+    );
+ 
+    initial begin
+        // ---- VCD dump setup ----
+        $dumpfile("half_add_sub.vcd");   // name of the VCD file to be generated
+        $dumpvars(0, tb3);                // dump all signals in this testbench hierarchy
+ 
+        // ---- Apply all 4 input combinations ----
+        $monitor("Time=%0t A=%b B=%b | Sum=%b Carry=%b | Diff=%b Borrow=%b",
+                   $time, A, B, Sum, Carry, Diff, Borrow);
+        A = 0; B = 0; #10;
+        A = 0; B = 1; #10;
+        A = 1; B = 0; #10;
+        A = 1; B = 1; #10;
+ 
+        #10 $finish;
+    end
+endmodule
 
 ### Truth Table
+A	B	Sum (HA)	Carry (HA)	Diff (HS)	Borrow (HS)
+0	0	 0        	0         	0	        0
+0	1	 1	        0	          1       	1
+1	0	 1	        0	          1     	  0
+1	1	 0	        1         	0	        0
 
 
 <img width="645" height="87" alt="TT3" src="https://github.com/user-attachments/assets/37e33bb3-d647-45d5-b610-c255d7e41b8b" />
@@ -84,6 +144,8 @@ The Half Adder and Half Subtractor were realized using Verilog HDL:
 The design was compiled and simulated using Synopsys VCS, and the functionality was verified using DVE waveform analysis, matching the expected truth table.
 
 ### Output
+<img width="1920" height="1080" alt="Screenshot 2026-10-22 120930" src="https://github.com/user-attachments/assets/67335a7b-b74b-4a48-ad02-2f4afc3acb4a" />
+<img width="1920" height="1080" alt="Screenshot 2026-10-22 121036" src="https://github.com/user-attachments/assets/a0b9d702-b10c-4901-84b2-e2358262860b" />
 
 
 ### Viva-Voce Questions
